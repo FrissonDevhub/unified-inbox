@@ -37,9 +37,9 @@ mongoose.connect(process.env.MONGODB_URI)
     process.exit(1);
   });
 
-  console.log("🔥 APP.JS IS RUNNING");
+  console.log(" APP.JS IS RUNNING");
 
   app.get("/test-terminal", (req, res) => {
-  console.log("🔥 BACKEND TERMINAL TEST SUCCESSFUL");
+  console.log(" BACKEND TERMINAL TEST SUCCESSFUL");
   res.send("Backend is working");
 });
