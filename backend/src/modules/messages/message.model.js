@@ -3,13 +3,13 @@ import mongoose from "mongoose";
 
 const messageSchema = new mongoose.Schema(
   {
-    userId: {
+    userId: {  //from which user 
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
 
-    conversationId: {
+    conversationId: {  //tells about message belong towhich conversation part
       type: mongoose.Schema.Types.ObjectId,
       ref: "Conversation",
       required: true,
@@ -37,7 +37,7 @@ const messageSchema = new mongoose.Schema(
       required: true,
     },
 
-    text: {
+    text: {  //actual message 
       type: String,
       default: "",
     },
@@ -47,7 +47,7 @@ const messageSchema = new mongoose.Schema(
       default: "text",
     },
 
-    direction: {
+    direction: {  //incoming or outgoing 
       type: String,
       enum: ["inbound", "outbound"],
       required: true,
@@ -67,13 +67,13 @@ const messageSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-messageSchema.index({ userId: 1, conversationId: 1, timestamp: -1 });
+messageSchema.index({ userId: 1, conversationId: 1, timestamp: -1 });  //improve performance 
 
 messageSchema.index(
   { userId: 1, channel: 1, externalMessageId: 1 },
   {
-    unique: true,
-    partialFilterExpression: {
+    unique: true,  //same combination dont store in database 
+    partialFilterExpression: {  //prevent error
       externalMessageId: { $type: "string" },
     },
   }
