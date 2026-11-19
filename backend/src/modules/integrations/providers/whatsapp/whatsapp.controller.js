@@ -1,4 +1,8 @@
-import { sendWhatsAppMessage } from "./whatsapp.service.js";
+import {
+  sendWhatsAppMessage,
+  processIncomingWhatsAppMessage,
+  updateWhatsAppMessageStatus,
+} from "./whatsapp.service.js";
 
 export async function sendWhatsAppMessageController(req, res) {
   try {
@@ -66,25 +70,32 @@ export async function handleWhatsAppWebhook(req, res) {
           );
 
           const incomingMessage = {
-            messageId: message.id,
-            from: message.from,
+            ...message,
             senderName: contact?.profile?.name ?? "",
-            timestamp: message.timestamp,
-            type: message.type,
-            text: message.text?.body ?? "",
           };
 
-          console.log("Incoming WhatsApp Message:", incomingMessage);
+          await processIncomingWhatsAppMessage(
+            incomingMessage,
+            value.metadata
+          );
+
+          
+
+          console.log("WhatsApp message saved:", message.id);
         }
 
         // Message delivery status updates
-        for (const status of value.statuses ?? []) {
-          console.log("WhatsApp Message Status:", {
-            messageId: status.id,
-            recipient: status.recipient_id,
-            status: status.status,
-            timestamp: status.timestamp,
-          });
+         for (const status of value.statuses ?? []) {
+          const updatedMessage = await updateWhatsAppMessageStatus(status);
+           if (updatedMessage) {
+    console.log(
+      "WhatsApp Message Status Updated:",
+      status.id,
+      status.status
+    );
+  } else {
+    console.log("Message not found for status:", status.id);
+  }
         }
       }
     }
