@@ -35,10 +35,82 @@ export async function sendWhatsAppMessage({ to, body }) {
     throw new Error(data.error?.message || "Failed to send WhatsApp message");
   }
 
+   const account = await WhatsAppAccount.findOne({
+    phoneNumberId,
+    isActive: true,
+  });
+
+  if (!account) {
+    throw new Error("WhatsApp account not found");
+  }
+
+  const userId = account.userId;
+
+  // 3. Find or create contact
+  const contact = await Contact.findOneAndUpdate(
+    {
+      userId,
+      channel: "whatsapp",
+      identifier: to,
+    },
+    {
+      $setOnInsert: {
+        name: "",
+      },
+    },
+    {
+      new: true,
+      upsert: true,
+      setDefaultsOnInsert: true,
+    }
+  );
+
+  // 4. Find or create conversation
+  let conversation = await Conversation.findOne({
+    userId,
+    contactId: contact._id,
+    channel: "whatsapp",
+  });
+
+  if (!conversation) {
+    conversation = await Conversation.create({
+      userId,
+      contactId: contact._id,
+      channel: "whatsapp",
+    });
+  }
+
+  // 5. Save outgoing message
+  const messageId = data.messages?.[0]?.id;
+
+  const savedMessage = await Message.create({
+    userId,
+    conversationId: conversation._id,
+    contactId: contact._id,
+    channel: "whatsapp",
+    externalMessageId: messageId,
+    sender: account.displayPhoneNumber || phoneNumberId,
+    text: body,
+    type: "text",
+    direction: "outbound",
+    status: "sent",
+    timestamp: new Date(),
+  });
+
+  // 6. Update conversation
+  await Conversation.findByIdAndUpdate(conversation._id, {
+    $set: {
+      lastMessage: body,
+      lastMessageAt: savedMessage.timestamp,
+    },
+  });
+
+
   return {
     success: true,
-    messageId: data.messages?.[0]?.id,  // id got from meta
+    messageId,  // id got from meta
     data,
+    savedMessage
   };
 }
 

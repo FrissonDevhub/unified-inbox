@@ -9,6 +9,7 @@ import { Server } from 'socket.io';
 import gmailRoutes from './modules/integrations/providers/gmail/gmail.routes.js';
 import slackRoutes from './modules/integrations/providers/slack/slack.routes.js';
 import whatsappRoutes from './modules/integrations/providers/whatsapp/whatsapp.routes.js';
+import conversationRoutes from "./modules/conversations/conversation.routes.js";
 
 const app = express();
 const server = createServer(app);
@@ -19,6 +20,7 @@ app.use(express.json());
 app.use('/api/integrations/gmail', gmailRoutes);
 app.use('/api/integrations/slack', slackRoutes);
 app.use('/api/integrations/whatsapp', whatsappRoutes);
+app.use("/api/conversations", conversationRoutes);
 
 const io = new Server(server, {
   cors: { origin: process.env.CLIENT_ORIGIN ?? 'http://localhost:5173' },

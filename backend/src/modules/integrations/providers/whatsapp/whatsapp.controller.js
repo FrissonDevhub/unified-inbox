@@ -68,6 +68,7 @@ export async function handleWhatsAppWebhook(req, res) {
           const contact = value.contacts?.find(
             (item) => item.wa_id === message.from
           );
+          console.log(message);
 
           const incomingMessage = {
             ...message,
