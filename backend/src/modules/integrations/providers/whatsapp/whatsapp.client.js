@@ -15,8 +15,8 @@ export function getWhatsAppClient() {
   }
 
   return {
-    accessToken,
-    phoneNumberId,
-    baseURL: `https://graph.facebook.com/${WHATSAPP_API_VERSION}/${phoneNumberId}`,
-  };
+  accessToken,
+  phoneNumberId,
+  baseURL: `https://graph.facebook.com/${WHATSAPP_API_VERSION}/${phoneNumberId}`,
+};
 }
